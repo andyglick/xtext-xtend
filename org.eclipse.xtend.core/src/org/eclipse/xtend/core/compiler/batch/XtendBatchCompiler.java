@@ -113,6 +113,17 @@ public class XtendBatchCompiler {
 
 	private static Logger log = Logger.getLogger(XtendBatchCompiler.class.getName());
 
+	private static final boolean isJava9CompilerApiAvailable;
+	static {
+		boolean result = true;
+		try {
+			Class.forName("javax.lang.model.element.ModuleElement");
+		} catch (ClassNotFoundException e) {
+			result = false;
+		}
+		isJava9CompilerApiAvailable = result;
+	}
+
 	protected static final FileFilter ACCEPT_ALL_FILTER = new FileFilter() {
 		@Override
 		public boolean accept(File pathname) {
@@ -637,6 +648,9 @@ public class XtendBatchCompiler {
 		}
 		commandLine.add("-d \"" + classDirectory.toString() + "\"");
 		commandLine.add("-" + getComplianceLevel());
+		if (!isJava9CompilerApiAvailable) {			
+			commandLine.add("-proc:none");
+		}
 		commandLine.add("-proceedOnError");
 		if (encodingProvider.getDefaultEncoding() != null) {
 			commandLine.add("-encoding \"" + encodingProvider.getDefaultEncoding() + "\"");
